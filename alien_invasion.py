@@ -70,25 +70,33 @@ class AlienInvasion:
                     mouse_pos = pygame.mouse.get_pos()
                     self._check_play_button(mouse_pos)
     
-    def _check_play_button(self, mouse_pos):
+    def _check_play_button(self, mouse_pos=''):
         """Запускает новую игру при нажатии кнопки "Play"."""
-        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
-        if button_clicked and not self.game_active:
-            # Сброс игровой статистики.
-            self.stats.reset_stats()
-            self.game_active = True
-
-            # Очистка групп aliens и bullets.
-            self.bullets.empty()
-            self.aliens.empty()
-
-            # Создание нового флота и размещение корабля в центре.
-            self._create_fleet()
-            self.ship.center_ship()
-
-            # Указатель мыши скрывается.
-            pygame.mouse.set_visible(False)
+        if mouse_pos:
+            button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+            if button_clicked and not self.game_active:
+                self._start_game()
+        else:
+            if not self.game_active:
+                self._start_game()
     
+    def _start_game(self):
+        """Запускает игру с изначальной статистикой и перезапуском."""        
+        # Сброс игровой статистики.
+        self.stats.reset_stats()
+        self.game_active = True
+
+        # Очистка групп aliens и bullets.
+        self.bullets.empty()
+        self.aliens.empty()
+
+        # Создание нового флота и размещение корабля в центре.
+        self._create_fleet()
+        self.ship.center_ship()
+
+        # Указатель мыши скрывается.
+        pygame.mouse.set_visible(False)
+
     def _check_keydown_events(self, event):
         """Реагирует на нажатие клавиш."""
         if event.key == pygame.K_RIGHT:
@@ -97,6 +105,8 @@ class AlienInvasion:
             self.ship.moving_left = True
         elif event.key == pygame.K_q:
             sys.exit()
+        elif event.key == pygame.K_p:
+            self._check_play_button()
         elif event.key == pygame.K_SPACE:
             self._fire_bullet()
     

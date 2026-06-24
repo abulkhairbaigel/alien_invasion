@@ -7,6 +7,7 @@ import pygame
 
 from settings import Settings
 from game_stats import GameStats
+from scoreboard import Scoreboard
 from button import Button
 from ship import Ship
 from bullet import Bullet
@@ -26,8 +27,9 @@ class AlienInvasion:
             (self.settings.screen_width, self.settings.screen_height))
         pygame.display.set_caption("Инопланетное Вторжение")
 
-        # Создание экземпляра для хранения игровой статистики.
+        # Создание экземпляров для хранения статистики и панели результата.
         self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -88,6 +90,7 @@ class AlienInvasion:
         """Запускает игру с изначальной статистикой и перезапуском."""        
         # Сброс игровой статистики.
         self.stats.reset_stats()
+        self.sb.prep_score()
         self.game_active = True
 
         # Очистка групп aliens и bullets.
@@ -144,6 +147,10 @@ class AlienInvasion:
         # Удаление снарядов и пришельцев, участвующих в коллизиях.
         collisions = pygame.sprite.groupcollide(
             self.bullets, self.aliens, True, True)
+        if collisions:
+            for aliens in collisions.values():
+                self.stats.score += self.settings.alien_points * len(aliens)
+            self.sb.prep_score()
         if not self.aliens: # Программа проверяет пуста ли группа aliens. Пустая группа интепретируется как False; это проверка группы на наличие элементов.
             # Уничтожение существующих снарядов и создание нового флота.
             self.bullets.empty()
@@ -240,6 +247,9 @@ class AlienInvasion:
             bullet.draw_bullet()
         self.ship.blitme()
         self.aliens.draw(self.screen)
+
+        # Вывод информации о счете.
+        self.sb.show_score()
 
         # Кнопка "Play" отображается только в том случае, если игра неактивна.
         if not self.game_active:

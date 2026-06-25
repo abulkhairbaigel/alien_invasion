@@ -91,6 +91,8 @@ class AlienInvasion:
         # Сброс игровой статистики.
         self.stats.reset_stats()
         self.sb.prep_score()
+        self.sb.prep_level()
+        self.sb.prep_ships()
         self.game_active = True
 
         # Очистка групп aliens и bullets.
@@ -151,11 +153,16 @@ class AlienInvasion:
             for aliens in collisions.values():
                 self.stats.score += self.settings.alien_points * len(aliens)
             self.sb.prep_score()
+            self.sb.check_high_score()
         if not self.aliens: # Программа проверяет пуста ли группа aliens. Пустая группа интепретируется как False; это проверка группы на наличие элементов.
             # Уничтожение существующих снарядов и создание нового флота.
             self.bullets.empty()
             self._create_fleet()
             self.settings.increase_speed()
+
+            # Увеличение уровня.
+            self.stats.level += 1
+            self.sb.prep_level()
 
     def _update_aliens(self):
         """
@@ -177,6 +184,7 @@ class AlienInvasion:
         if self.stats.ships_left > 0:
             # Уменьшение ship_left.
             self.stats.ships_left -= 1
+            self.sb.prep_ships()
 
             # Очистка групп aliens и bullets.
             self.aliens.empty()

@@ -2,6 +2,9 @@
 import sys
 from time import sleep
 
+import json
+from pathlib import Path
+
 # Импортирование модуля pygame (содержит функциональность, необходимую для создания игры.)
 import pygame
 
@@ -63,7 +66,7 @@ class AlienInvasion:
         """Обрабатывает нажатия клавиш и события мыши."""
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    sys.exit()
+                    self._close_game()
                 elif event.type == pygame.KEYDOWN:
                     self._check_keydown_events(event)
                 elif event.type == pygame.KEYUP:
@@ -113,7 +116,7 @@ class AlienInvasion:
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = True
         elif event.key == pygame.K_q:
-            sys.exit()
+            self._close_game()
         elif event.key == pygame.K_p:
             self._check_play_button()
         elif event.key == pygame.K_SPACE:
@@ -265,6 +268,16 @@ class AlienInvasion:
             
         # Отражение последнего прорисованного экрана.
         pygame.display.flip()
+
+    def _close_game(self):
+        """Сохраняет новый рекорд и выходит из игры."""
+        saved_high_score = self.stats.get_stored_high_score()
+        if self.stats.high_score > saved_high_score:
+            path = Path(r'C:\Users\admin\Desktop\alien_invasion\text_files\new_high_score.json')
+            contents = json.dumps(self.stats.high_score)
+            path.write_text(contents)
+        
+        sys.exit()
 
 if __name__ == '__main__':
     # Создание экземпляра и запуск игры.
